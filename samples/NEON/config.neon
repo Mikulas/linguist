@@ -1,0 +1,66 @@
+#
+# Config file comment line 1
+# line 2
+#
+#
+parameters:
+	appNamespace: App
+	repositories:
+		videos: App\VideosRepository
+		revisions: App\RevisionsRepository
+		authors: App\AuthorsRepository
+		users: App\UsersRepository
+		comments: App\CommentsRepository
+		authorComments: App\AuthorCommentsRepository
+		stars: App\StarsRepository
+
+	siteUrl: "https://example.com/"
+	https: false
+
+php:
+	date.timezone: Europe/Prague
+	session.save_path: "%tempDir%/sessions"
+	# zlib.output_compression: yes
+
+nette:
+	application:
+		errorPresenter: Error
+
+	latte:
+		macros:
+			- App\CustomMacros::install
+
+	container:
+		accessors: true
+
+	debugger:
+		bar:
+			- App\CachePanel
+			# - App\DibiIndexPanel(@dibiConnection)
+
+	session:
+		expiration: 14 days
+
+services:
+	router: App\Router
+
+	usersRepository:
+		class: %repositories.users%
+		factory: @orm::getRepository(users)
+	authenticator: App\Authenticator
+
+	nette.presenterFactory: Clevis\Skeleton\PresenterFactory(%appDir%, @container, %appNamespace%)
+	templateFactory: Clevis\Skeleton\TemplateFactory(@nette.templateCacheStorage, [@container, createServiceNette__template])
+
+	dibiConnection: DibiConnection(%database%)
+
+	orm: App\RepositoryContainer(@serviceContainerFactory, %repositories%, @container)
+	serviceContainerFactory: Clevis\Skeleton\Orm\ServiceContainerFactory(@dibiConnection, @performanceHelperCache)
+	entityRelationsRegistry: Clevis\Skeleton\Orm\EntityRelationsRegistry
+	performanceHelperCache:	Nette\Caching\Cache(@cacheStorage, Orm.PerformanceHelper)
+
+	amara: App\Services\Amara
+	location: App\Services\Location
+	status: App\Services\Status(@dibiConnection)
+	stats: App\Services\Stats(@dibiConnection)
+	diff: App\Services\Diff

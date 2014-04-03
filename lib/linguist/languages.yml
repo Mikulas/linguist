@@ -1128,6 +1128,12 @@ Nemerle:
   color: "#0d3c6e"
   primary_extension: .n
 
+NEON:
+  type: data
+  aliases:
+  - Neon
+  primary_extension: .neon
+
 NetLogo:
   type: programming
   lexer: Common Lisp
